@@ -2,13 +2,14 @@
 //  CYLTabBarController.m
 //  CYLTabBarController
 //
-//  v1.6.5 Created by 微博@iOS程序犭袁 ( http://weibo.com/luohanchenyilong/ ) on 10/20/15.
+//  v1.10.0 Created by 微博@iOS程序犭袁 ( http://weibo.com/luohanchenyilong/ ) on 10/20/15.
 //  Copyright © 2015 https://github.com/ChenYilong . All rights reserved.
 //
 
 #import "CYLTabBarController.h"
 #import "CYLTabBar.h"
 #import <objc/runtime.h>
+#import "UIViewController+CYLTabBarControllerExtention.h"
 
 NSString *const CYLTabBarItemTitle = @"CYLTabBarItemTitle";
 NSString *const CYLTabBarItemImage = @"CYLTabBarItemImage";
@@ -19,12 +20,6 @@ NSUInteger CYLPlusButtonIndex = 0;
 CGFloat CYLTabBarItemWidth = 0.0f;
 NSString *const CYLTabBarItemWidthDidChangeNotification = @"CYLTabBarItemWidthDidChangeNotification";
 static void * const CYLSwappableImageViewDefaultOffsetContext = (void*)&CYLSwappableImageViewDefaultOffsetContext;
-
-@interface NSObject (CYLTabBarControllerItemInternal)
-
-- (void)cyl_setTabBarController:(CYLTabBarController *)tabBarController;
-
-@end
 
 @interface CYLTabBarController () <UITabBarControllerDelegate>
 
@@ -47,12 +42,23 @@ static void * const CYLSwappableImageViewDefaultOffsetContext = (void*)&CYLSwapp
         [self.tabBar addObserver:self forKeyPath:@"swappableImageViewDefaultOffset" options:NSKeyValueObservingOptionNew context:CYLSwappableImageViewDefaultOffsetContext];
         self.observingSwappableImageViewDefaultOffset = YES;
     }
-    self.delegate = self;
+    
 }
 
 //Fix issue #93
 - (void)viewDidLayoutSubviews {
     [self.tabBar layoutSubviews];
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        UITabBar *tabBar =  self.tabBar;
+        for (UIControl *control in tabBar.subviews) {
+            if ([control isKindOfClass:[UIControl class]]) {
+                SEL actin = @selector(didSelectControl:);
+                [control addTarget:self action:actin forControlEvents:UIControlEventTouchUpInside];
+            }
+        }
+    });
+   
 }
 
 - (void)viewWillLayoutSubviews {
@@ -89,15 +95,44 @@ static void * const CYLSwappableImageViewDefaultOffsetContext = (void*)&CYLSwapp
 #pragma mark - public Methods
 
 - (instancetype)initWithViewControllers:(NSArray<UIViewController *> *)viewControllers tabBarItemsAttributes:(NSArray<NSDictionary *> *)tabBarItemsAttributes {
+    return [self initWithViewControllers:viewControllers
+                   tabBarItemsAttributes:tabBarItemsAttributes
+                             imageInsets:UIEdgeInsetsZero
+                 titlePositionAdjustment:UIOffsetZero];
+}
+
+- (instancetype)initWithViewControllers:(NSArray<UIViewController *> *)viewControllers
+                  tabBarItemsAttributes:(NSArray<NSDictionary *> *)tabBarItemsAttributes
+                            imageInsets:(UIEdgeInsets)imageInsets
+                titlePositionAdjustment:(UIOffset)titlePositionAdjustment {
     if (self = [super init]) {
+        _imageInsets = imageInsets;
+        _titlePositionAdjustment = titlePositionAdjustment;
         _tabBarItemsAttributes = tabBarItemsAttributes;
         self.viewControllers = viewControllers;
+        if (CYLPlusChildViewController) {
+            self.delegate = self;
+        }
     }
     return self;
 }
 
+
++ (instancetype)tabBarControllerWithViewControllers:(NSArray<UIViewController *> *)viewControllers
+                              tabBarItemsAttributes:(NSArray<NSDictionary *> *)tabBarItemsAttributes
+                                        imageInsets:(UIEdgeInsets)imageInsets
+                            titlePositionAdjustment:(UIOffset)titlePositionAdjustment {
+    return [[self alloc] initWithViewControllers:viewControllers
+                           tabBarItemsAttributes:tabBarItemsAttributes
+                                     imageInsets:imageInsets
+                         titlePositionAdjustment:titlePositionAdjustment];
+}
+
 + (instancetype)tabBarControllerWithViewControllers:(NSArray<UIViewController *> *)viewControllers tabBarItemsAttributes:(NSArray<NSDictionary *> *)tabBarItemsAttributes {
-   return [[self alloc] initWithViewControllers:viewControllers tabBarItemsAttributes:tabBarItemsAttributes];
+    return [self tabBarControllerWithViewControllers:viewControllers
+                               tabBarItemsAttributes:tabBarItemsAttributes
+                                         imageInsets:UIEdgeInsetsZero
+                             titlePositionAdjustment:UIOffsetZero];
 }
 
 + (BOOL)havePlusButton {
@@ -170,20 +205,20 @@ static void * const CYLSwappableImageViewDefaultOffsetContext = (void*)&CYLSwapp
         NSUInteger idx = 0;
         for (UIViewController *viewController in _viewControllers) {
             NSString *title = nil;
-            NSString *normalImageName = nil;
-            NSString *selectedImageName = nil;
+            id normalImageInfo = nil;
+            id selectedImageInfo = nil;
             if (viewController != CYLPlusChildViewController) {
                 title = _tabBarItemsAttributes[idx][CYLTabBarItemTitle];
-                normalImageName = _tabBarItemsAttributes[idx][CYLTabBarItemImage];
-                selectedImageName = _tabBarItemsAttributes[idx][CYLTabBarItemSelectedImage];
+                normalImageInfo = _tabBarItemsAttributes[idx][CYLTabBarItemImage];
+                selectedImageInfo = _tabBarItemsAttributes[idx][CYLTabBarItemSelectedImage];
             } else {
                 idx--;
             }
             
             [self addOneChildViewController:viewController
                                   WithTitle:title
-                            normalImageName:normalImageName
-                          selectedImageName:selectedImageName];
+                            normalImageInfo:normalImageInfo
+                          selectedImageInfo:selectedImageInfo];
             [viewController cyl_setTabBarController:self];
             idx++;
         }
@@ -200,21 +235,21 @@ static void * const CYLSwappableImageViewDefaultOffsetContext = (void*)&CYLSwapp
  *
  *  @param viewController    控制器
  *  @param title             标题
- *  @param normalImageName   图片
- *  @param selectedImageName 选中图片
+ *  @param normalImageInfo   图片
+ *  @param selectedImageInfo 选中图片
  */
 - (void)addOneChildViewController:(UIViewController *)viewController
                         WithTitle:(NSString *)title
-                  normalImageName:(NSString *)normalImageName
-                selectedImageName:(NSString *)selectedImageName {
+                  normalImageInfo:(id)normalImageInfo
+                selectedImageInfo:(id)selectedImageInfo {
     viewController.tabBarItem.title = title;
-    if (normalImageName) {
-        UIImage *normalImage = [UIImage imageNamed:normalImageName];
+    if (normalImageInfo) {
+        UIImage *normalImage = [self getImageFromImageInfo:normalImageInfo];
         normalImage = [normalImage imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
         viewController.tabBarItem.image = normalImage;
     }
-    if (selectedImageName) {
-        UIImage *selectedImage = [UIImage imageNamed:selectedImageName];
+    if (selectedImageInfo) {
+        UIImage *selectedImage = [self getImageFromImageInfo:selectedImageInfo];
         selectedImage = [selectedImage imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
         viewController.tabBarItem.selectedImage = selectedImage;
     }
@@ -225,6 +260,16 @@ static void * const CYLSwappableImageViewDefaultOffsetContext = (void*)&CYLSwapp
         viewController.tabBarItem.titlePositionAdjustment = self.titlePositionAdjustment;
     }
     [self addChildViewController:viewController];
+}
+
+- (UIImage *)getImageFromImageInfo:(id)imageInfo {
+    UIImage *image = nil;
+    if ([imageInfo isKindOfClass:[NSString class]]) {
+        image = [UIImage imageNamed:imageInfo];
+    } else if ([imageInfo isKindOfClass:[UIImage class]]) {
+        image = (UIImage *)imageInfo;
+    }
+    return image;
 }
 
 - (BOOL)shouldCustomizeImageInsets {
@@ -268,30 +313,41 @@ static void * const CYLSwappableImageViewDefaultOffsetContext = (void*)&CYLSwapp
 
 #pragma mark - delegate
 
-- (BOOL)tabBarController:(UITabBarController *)tabBarController shouldSelectViewController:(UIViewController*)viewController {
+- (void)updateSelectionStatusIfNeededForTabBarController:(UITabBarController *)tabBarController shouldSelectViewController:(UIViewController *)viewController {
     NSUInteger selectedIndex = tabBarController.selectedIndex;
     UIButton *plusButton = CYLExternPlusButton;
-    if (CYLPlusChildViewController) {
-        if ((selectedIndex == CYLPlusButtonIndex) && (viewController != CYLPlusChildViewController)) {
-            plusButton.selected = NO;
-        }
+    BOOL shouldConfigureSelectionStatus = CYLPlusChildViewController && ((selectedIndex == CYLPlusButtonIndex) && (viewController != CYLPlusChildViewController));
+    if (shouldConfigureSelectionStatus) {
+        plusButton.selected = NO;
     }
+}
+
+- (BOOL)tabBarController:(UITabBarController *)tabBarController shouldSelectViewController:(UIViewController *)viewController {
+    [[self cyl_tabBarController] updateSelectionStatusIfNeededForTabBarController:tabBarController shouldSelectViewController:viewController];
     return YES;
+}
+
+- (void)tabBarController:(UITabBarController *)tabBarController didSelectControl:(UIControl *)control {
+    
+}
+
+- (void)didSelectControl:(UIControl *)control {
+    SEL actin = @selector(tabBarController:didSelectControl:);
+    if ([self.delegate respondsToSelector:actin]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+        [self.delegate performSelector:actin withObject:self withObject:control];
+#pragma clang diagnostic pop
+    }
 }
 
 @end
 
-#pragma mark - NSObject+CYLTabBarControllerItem
-
-@implementation NSObject (CYLTabBarControllerItemInternal)
+@implementation NSObject (CYLTabBarControllerReferenceExtension)
 
 - (void)cyl_setTabBarController:(CYLTabBarController *)tabBarController {
     objc_setAssociatedObject(self, @selector(cyl_tabBarController), tabBarController, OBJC_ASSOCIATION_ASSIGN);
 }
-
-@end
-
-@implementation NSObject (CYLTabBarController)
 
 - (CYLTabBarController *)cyl_tabBarController {
     CYLTabBarController *tabBarController = objc_getAssociatedObject(self, @selector(cyl_tabBarController));
@@ -304,7 +360,8 @@ static void * const CYLSwappableImageViewDefaultOffsetContext = (void*)&CYLSwapp
     }
     id<UIApplicationDelegate> delegate = ((id<UIApplicationDelegate>)[[UIApplication sharedApplication] delegate]);
     UIWindow *window = delegate.window;
-    if ([window.rootViewController isKindOfClass:[CYLTabBarController class]]) {
+    UIViewController *rootViewController = [window.rootViewController cyl_getViewControllerInsteadIOfNavigationController];;
+    if ([rootViewController isKindOfClass:[CYLTabBarController class]]) {
         tabBarController = (CYLTabBarController *)window.rootViewController;
     }
     return tabBarController;

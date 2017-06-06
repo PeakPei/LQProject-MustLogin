@@ -2,7 +2,7 @@
 //  CYLPlusButton.h
 //  CYLTabBarController
 //
-//  v1.6.5 Created by 微博@iOS程序犭袁 ( http://weibo.com/luohanchenyilong/ ) on 10/20/15.
+//  v1.10.0 Created by 微博@iOS程序犭袁 ( http://weibo.com/luohanchenyilong/ ) on 10/20/15.
 //  Copyright © 2015 https://github.com/ChenYilong . All rights reserved.
 //
 
@@ -47,12 +47,21 @@
 + (CGFloat)constantOfPlusButtonCenterYOffsetForTabBarHeight:(CGFloat)tabBarHeight;
 
 /*!
- * 实现该方法后，能让 PlusButton 的点击效果与跟点击其他 UITabBarButton 效果一样，跳转到该方法指定的 UIViewController 。
+ * 实现该方法后，能让 PlusButton 的点击效果与跟点击其他 TabBar 按钮效果一样，跳转到该方法指定的 UIViewController 。
  * @attention 必须同时实现 `+indexOfPlusButtonInTabBar` 来指定 PlusButton 的位置。
  * @return 指定 PlusButton 点击后跳转的 UIViewController。
  *
  */
 + (UIViewController *)plusChildViewController;
+
+/*!
+ * 
+ Asks the delegate whether the specified view controller should be made active.
+ Return YES if the view controller’s tab should be selected or NO if the current tab should remain active.
+ Returns YES true if the view controller’s tab should be selected or
+         NO  false if the current tab should remain active.
+ */
++ (BOOL)shouldSelectPlusChildViewController;
 
 #pragma mark - Deprecated API
 

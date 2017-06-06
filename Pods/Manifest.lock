@@ -18,10 +18,10 @@ PODS:
     - ChameleonFramework/Default (= 2.1.0)
   - ChameleonFramework/Default (2.1.0)
   - CNPPopupController (0.3.3)
-  - CYLTabBarController (1.6.7)
+  - CYLTabBarController (1.11.0)
   - DZNEmptyDataSet (1.8.1)
-  - GSMessages (1.3.1)
-  - LTNavigationBar (2.1.6)
+  - GSMessages (1.3.4)
+  - LTNavigationBar (2.1.9)
   - Masonry (1.0.2)
   - MJRefresh (3.1.12)
   - MMDrawerController (0.5.7):
@@ -36,15 +36,10 @@ PODS:
     - MMDrawerController/Core
   - MMDrawerController/Subclass (0.5.7):
     - MMDrawerController/Core
-  - ReactiveCocoa (5.0.0-alpha.3):
-    - ReactiveSwift (~> 1.0.0-alpha.3)
-  - ReactiveObjC (2.1.0)
-  - ReactiveSwift (1.0.0-alpha.4):
-    - Result (~> 3.0)
-  - Result (3.1.0)
+  - ReactiveObjC (3.0.0)
   - RKNotificationHub (2.0.4)
   - Spring (1.0.3)
-  - SVProgressHUD (2.0.4)
+  - SVProgressHUD (2.1.2)
   - YYKit (1.0.9):
     - YYKit/no-arc (= 1.0.9)
   - YYKit/no-arc (1.0.9)
@@ -61,7 +56,6 @@ DEPENDENCIES:
   - Masonry
   - MJRefresh
   - MMDrawerController (~> 0.5.7)
-  - ReactiveCocoa (= 5.0.0-alpha.3)
   - ReactiveObjC
   - RKNotificationHub
   - Spring (from `https://github.com/MengTo/Spring.git`, branch `swift3`)
@@ -76,30 +70,27 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   Spring:
-    :commit: 3a9227c6e9157e7b47f5ac1ee5abab2a56b50002
+    :commit: 8201b5c93bd7ebdf4cd18160bcde1e6e88c2be64
     :git: https://github.com/MengTo/Spring.git
 
 SPEC CHECKSUMS:
   AFNetworking: 5e0e199f73d8626b11e79750991f5d173d1f8b67
   ChameleonFramework: d21a3cc247abfe5e37609a283a8238b03575cf64
   CNPPopupController: 59b06290762f68beab5fb0bbfa87eb4dcbefb7de
-  CYLTabBarController: cc8b19463bd3a3d4b886a55c0a9440fdceefd3d6
+  CYLTabBarController: de931d849db806419eadd4a85f3476f7656ac526
   DZNEmptyDataSet: 9525833b9e68ac21c30253e1d3d7076cc828eaa7
-  GSMessages: 619a1a97d2dec6e22ffc964e9a521765bfe26c02
-  LTNavigationBar: 9ef51488bf289b1f65dbcb17ac92888c4ae23e30
+  GSMessages: b26e37bb6017b11d61f2708684179d5e9495c063
+  LTNavigationBar: c278785bed344862e18146b5f06792932e4feacc
   Masonry: 7c429b56da9d4ee0bbb3ed77a5ea710d6a5df39e
   MJRefresh: b96cdb21c4aa75a7b07654311ab2f315c497e806
   MMDrawerController: 7a4cf8e25596bf2434e03ce50d22a8608ddee6a1
-  ReactiveCocoa: d8a03d3deae0dd76410a30589946328d76ab9d2b
-  ReactiveObjC: 2edae120982d8e6d5407503a10edcfdd87eb8639
-  ReactiveSwift: 3fa49d2db97609ea700cd2b8f1bfbdd162024f97
-  Result: 4e3ed5995ed94d0cd6a09be9a431fce3f3624bbf
+  ReactiveObjC: ce79989e8684b9086b5f8d0c74bc7b81a8729c9e
   RKNotificationHub: 3765424499139c3d3885b681bb0837f072d12ae6
   Spring: 3f02b5dc3308572ef177b3cad0fa7bbc4b0706f7
-  SVProgressHUD: bfde85ed6c573ea802b9cb37894ed9b629034f1b
+  SVProgressHUD: c404a55d78acbeb7ebb78b76d3faf986475a6994
   YYKit: 7cda43304a8dc3696c449041e2cb3107b4e236e7
   ZFDragableModalTransition: 0d294eaaba6edfcb9839595de765f9ca06a4b524
 
-PODFILE CHECKSUM: 6c153a5e9df89209e5e518ec303e8f16e5686447
+PODFILE CHECKSUM: 271131b54de601de67309c28afa52690506b75cc
 
-COCOAPODS: 1.2.0.beta.1
+COCOAPODS: 1.2.1

@@ -2,7 +2,7 @@
 //  CYLTabBar.m
 //  CYLTabBarController
 //
-//  v1.6.5 Created by 微博@iOS程序犭袁 ( http://weibo.com/luohanchenyilong/ ) on 10/20/15.
+//  v1.10.0 Created by 微博@iOS程序犭袁 ( http://weibo.com/luohanchenyilong/ ) on 10/20/15.
 //  Copyright © 2015 https://github.com/ChenYilong . All rights reserved.
 //
 
@@ -60,8 +60,7 @@ static void *const CYLTabBarContext = (void*)&CYLTabBarContext;
  */
 - (NSArray *)tabBarButtonArray {
     if (_tabBarButtonArray == nil) {
-        NSArray *tabBarButtonArray = [[NSArray alloc] init];
-        _tabBarButtonArray = tabBarButtonArray;
+        _tabBarButtonArray = @[];
     }
     return _tabBarButtonArray;
 }
@@ -211,7 +210,8 @@ static void *const CYLTabBarContext = (void*)&CYLTabBarContext;
 - (NSArray *)tabBarButtonFromTabBarSubviews:(NSArray *)tabBarSubviews {
     NSMutableArray *tabBarButtonMutableArray = [NSMutableArray arrayWithCapacity:tabBarSubviews.count - 1];
     [tabBarSubviews enumerateObjectsUsingBlock:^(UIView * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        if ([obj isKindOfClass:NSClassFromString(@"UITabBarButton")]) {
+        NSString *button = [NSString stringWithFormat:@"UIT%@arB%@", @"abB", @"utton"];
+        if ([obj isKindOfClass:NSClassFromString(button)]) {
             [tabBarButtonMutableArray addObject:obj];
         }
     }];
@@ -227,11 +227,13 @@ static void *const CYLTabBarContext = (void*)&CYLTabBarContext;
     __block CGFloat swappableImageViewDefaultOffset = 0.f;
     CGFloat tabBarHeight = self.frame.size.height;
     [tabBarButton.subviews enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        if ([obj isKindOfClass:NSClassFromString(@"UITabBarButtonLabel")]) {
+        NSString *label = [NSString stringWithFormat:@"UITa%@ut%@", @"bBarB", @"tonLabel"];
+        if ([obj isKindOfClass:NSClassFromString(label)]) {
             shouldCustomizeImageView = NO;
         }
         swappableImageViewHeight = obj.frame.size.height;
-        BOOL isSwappableImageView = [obj isKindOfClass:NSClassFromString(@"UITabBarSwappableImageView")];
+        NSString *imageView = [NSString stringWithFormat:@"UITabB%@pp%@", @"arSwa", @"ableImageView"];
+        BOOL isSwappableImageView = [obj isKindOfClass:NSClassFromString(imageView)];
         if (isSwappableImageView) {
             swappableImageViewDefaultOffset = (tabBarHeight - swappableImageViewHeight) * 0.5 * 0.5;
         }
@@ -248,19 +250,19 @@ static void *const CYLTabBarContext = (void*)&CYLTabBarContext;
  *  Capturing touches on a subview outside the frame of its superview.
  */
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
+    //1. 边界情况：不能响应点击事件
+    
     BOOL canNotResponseEvent = self.hidden || (self.alpha <= 0.01f) || (self.userInteractionEnabled == NO);
     if (canNotResponseEvent) {
         return nil;
     }
-    if (!CYLExternPlusButton && ![self pointInside:point withEvent:event]) {
-        return nil;
-    }
+    
+    //2. 优先处理 PlusButton （包括其突出的部分）、TabBarItems 未凸出的部分
+    //这一步主要是在处理只有两个 TabBarItems 的场景。
+    
     if (CYLExternPlusButton) {
         CGRect plusButtonFrame = self.plusButton.frame;
         BOOL isInPlusButtonFrame = CGRectContainsPoint(plusButtonFrame, point);
-        if (!isInPlusButtonFrame && (point.y < 0) ) {
-            return nil;
-        }
         if (isInPlusButtonFrame) {
             return CYLExternPlusButton;
         }
@@ -272,8 +274,24 @@ static void *const CYLTabBarContext = (void*)&CYLTabBarContext;
     for (NSUInteger index = 0; index < tabBarButtons.count; index++) {
         UIView *selectedTabBarButton = tabBarButtons[index];
         CGRect selectedTabBarButtonFrame = selectedTabBarButton.frame;
-        if (CGRectContainsPoint(selectedTabBarButtonFrame, point)) {
+        BOOL isTabBarButtonFrame = CGRectContainsPoint(selectedTabBarButtonFrame, point);\
+        if (isTabBarButtonFrame) {
             return selectedTabBarButton;
+        }
+    }
+    
+    //3. 最后处理 TabBarItems 凸出的部分、添加到 TabBar 上的自定义视图、点击到 TabBar 上的空白区域
+    
+    UIView *result = [super hitTest:point withEvent:event];
+    if (result) {
+        return result;
+    }
+    
+    for (UIView *subview in self.subviews.reverseObjectEnumerator) {
+        CGPoint subPoint = [subview convertPoint:point fromView:self];
+        result = [subview hitTest:subPoint withEvent:event];
+        if (result) {
+            return result;
         }
     }
     return nil;
