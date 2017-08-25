@@ -70,6 +70,7 @@
             block(nil,NO);
         }
     }];
+    [manager invalidateSessionCancelingTasks:NO];
 }
 
 +(void)checkError:(NSDictionary*)dict
