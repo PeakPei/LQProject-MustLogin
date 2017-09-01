@@ -10,25 +10,21 @@
 
 #import "GuideViewController.h"
 
-
-#import "MMDrawerVisualState.h"
-
-#import "CYLTabBarControllerConfig.h"
-#import "CYLPlusButtonSubclass.h"
-
 #import "LoginVC.h"
-
+#import "HomeTVC.h"
+#import "MineTVC.h"
 
 //振动
 #import <AudioToolbox/AudioToolbox.h>
+#import "QMUIConfigurationTemplate.h"
+#import "QDTabBarViewController.h"
+#import "QDNavigationController.h"
+
+
 
 @interface AppDelegate ()
 
-/**
- *  抽屉效果
- */
-@property (nonatomic,strong) MMDrawerController * drawerController;
-
+@property(nonatomic, strong) QDTabBarViewController *rootViewController;
 @end
 
 @implementation AppDelegate
@@ -37,14 +33,26 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
+    
+    // 应用 QMUI Demo 皮肤
+    NSString *themeClassName = [[NSUserDefaults standardUserDefaults] stringForKey:QDSelectedThemeClassName] ?: NSStringFromClass([QMUIConfigurationTemplate class]);
+    [QDThemeManager sharedInstance].currentTheme = [[NSClassFromString(themeClassName) alloc] init];
+    
+    // QD自定义的全局样式渲染
+    [QDCommonUI renderGlobalAppearances];
+    
+    // 预加载 QQ 表情，避免第一次使用时卡顿（可选）
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        [QMUIQQEmotionManager emotionsForQQ];
+    });
+    
+    
     // 向苹果注册推送，获取deviceToken并上报
     [self registerAPNS:application];
     
     
     [self _initAPPWithOptions:launchOptions];
-    
-    
-    
+
     return YES;
 }
 
@@ -56,15 +64,11 @@
     
     [self initSVProgressHUD];
     
-    [self _initNav];
-    
-    
     [self _initThirdSDKWithOptions:launchOptions];
     
     [self _initWindow];
     
     [self _initWebUserAgent];
-    
     
     [Tool requestLoginMethodWithCompletedBlock:nil noConnet:nil];
     
@@ -78,25 +82,6 @@
     [SVProgressHUD setBackgroundColor:MyColor_HudBackground];
     //    文字的颜色
     [SVProgressHUD setForegroundColor:[UIColor whiteColor]];
-}
-
-/**
- *  初始化导航栏
- */
-- (void)_initNav{
-    //设置导航的颜色
-    [[UINavigationBar appearance] setBarTintColor:MyColor_NavigationBar];
-    
-    [[UINavigationBar appearance] setTintColor:[UIColor whiteColor]];
-    
-    [[UINavigationBar appearance] setTitleTextAttributes:@{NSForegroundColorAttributeName:[UIColor whiteColor]}];
-    
-    [[UINavigationBar appearance] setShadowImage:[[UIImage alloc] init]];
-    //全局返回按钮
-    [[UIBarButtonItem appearance] setBackButtonTitlePositionAdjustment:UIOffsetMake(0, -60)
-                                                         forBarMetrics:UIBarMetricsDefault];
-    //状态栏文字白色
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:NO];
 }
 
 /**
@@ -148,44 +133,29 @@
  *  初始化主界面
  */
 - (void)_initRootViewController {
+    QDTabBarViewController *tabBarViewController = [[QDTabBarViewController alloc] init];
     
-    //tabbar(3个主视图创建)
-    [CYLPlusButtonSubclass registerPlusButton];
-    CYLTabBarControllerConfig *tabBarControllerConfig = [[CYLTabBarControllerConfig alloc] init];
+    // QMUIKit
+    HomeTVC *homeTVC = [[HomeTVC alloc] init];
+    homeTVC.hidesBottomBarWhenPushed = NO;
+    QDNavigationController *homeNavController = [[QDNavigationController alloc] initWithRootViewController:homeTVC];
+    homeNavController.tabBarItem = [QDUIHelper tabBarItemWithTitle:@"QMUIKit" image:[UIImageMake(@"icon_tabbar_uikit") imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] selectedImage:UIImageMake(@"icon_tabbar_uikit_selected") tag:0];
     
-    /**
-     *  个人中心视图
-     */
+    // UIComponents
+    MineTVC *mineTVC = [[MineTVC alloc] init];
+    mineTVC.hidesBottomBarWhenPushed = NO;
+    QDNavigationController *mineNavController = [[QDNavigationController alloc] initWithRootViewController:mineTVC];
+    mineNavController.tabBarItem = [QDUIHelper tabBarItemWithTitle:@"Components" image:[UIImageMake(@"icon_tabbar_component") imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] selectedImage:UIImageMake(@"icon_tabbar_component_selected") tag:1];
     
-    UIViewController *letfVC = [[UIViewController alloc] init];
-    letfVC.view.backgroundColor = FlatSand;
+    // window root controller
+    tabBarViewController.viewControllers = @[homeNavController, mineNavController];
+    self.rootViewController = tabBarViewController;
     
-    //抽屉效果视图创建
-    self.drawerController = [[MMDrawerController alloc]
-                             initWithCenterViewController:tabBarControllerConfig.tabBarController
-                             leftDrawerViewController:letfVC];
-    [self.drawerController setShowsShadow:NO];
-    [self.drawerController setRestorationIdentifier:@"MMDrawer"];
-    [self.drawerController setMaximumRightDrawerWidth:200.0];
-    [self.drawerController setOpenDrawerGestureModeMask:MMOpenDrawerGestureModeAll];
-    [self.drawerController setCloseDrawerGestureModeMask:MMCloseDrawerGestureModeAll];
-    
-    [self.drawerController
-     setDrawerVisualStateBlock:^(MMDrawerController *drawerController, MMDrawerSide drawerSide, CGFloat percentVisible) {
-         MMDrawerControllerDrawerVisualStateBlock block = [MMDrawerVisualState parallaxVisualStateBlockWithParallaxFactor:2.0];
-         if(block){
-             block(drawerController, drawerSide, percentVisible);
-         }
-     }];
     
     //创建window
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    
     self.window.backgroundColor = MyColor_BackgroudView;
-    
-    _rootViewController = self.drawerController;
-    
-    self.window.rootViewController = _rootViewController;
+    self.window.rootViewController = self.rootViewController;
 }
 
 /**
@@ -293,7 +263,7 @@
             //强制下线
             if ([UserCenter checkIsLogin]) {
                 [self exitLoginGotoRoot];
-                [UtilsApi showAlertWithMessage:jsonDict[@"title"] inViewController:[UtilsApi getCurrentVC] okBlock:nil];
+//                [UtilsApi showAlertWithMessage:jsonDict[@"title"] inViewController:[UtilsApi getCurrentVC] okBlock:nil];
 
             }
         }

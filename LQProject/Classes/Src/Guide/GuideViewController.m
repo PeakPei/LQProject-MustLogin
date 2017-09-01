@@ -8,14 +8,14 @@
 
 #import "GuideViewController.h"
 #import "GuidePageModel.h"
-#import "ZFModalTransitionAnimator.h"
+
 
 @interface GuideViewController ()<UIScrollViewDelegate>
 {
     GuidePageModel *guideModel;
     
 }
-@property (nonatomic, strong) ZFModalTransitionAnimator *animator;
+
 @property(nonatomic,strong) UIScrollView *aSscroll;
 
 @property (nonatomic, strong) NSArray *imageArr;

@@ -9,7 +9,6 @@
 #import "HomeTVC.h"
 
 #import "ADView.h"
-#import "RxWebViewController.h"
 
 @interface HomeTVC ()
 
@@ -28,19 +27,7 @@
 //        [self setupADView];
 //        Url_Json.isShowedAd = YES;
 //    }
-    [self setNavLeftBar];
-}
-#pragma mark - 设置左上角按钮
-- (void)setNavLeftBar{
-    
-    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"左菜单" style:UIBarButtonItemStylePlain target:self action:@selector(leftBarButtonItemClicked)];
-    
-}
 
-#pragma mark - 打开侧滑栏
-- (void)leftBarButtonItemClicked {
-    AppDelegate *apd = App_Delegate;
-    [apd.rootViewController openDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
 }
 
 - (void)viewDidAppear:(BOOL)animated {

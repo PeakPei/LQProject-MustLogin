@@ -7,13 +7,9 @@
 //
 
 #import "Tool.h"
-
-
-#import "MSJSONResponseSerializerWithData.h"
 #import "LoginVC.h"
 #import "RxWebViewController.h"
-#import "JSONKit.h"
-#import <sys/utsname.h>
+#import <AFNetworking/AFNetworking.h>
 
 @implementation Tool
 
@@ -25,15 +21,6 @@
     //必传参数
     parameters[@"version"] = App_Version;
     parameters[@"channel"] = @0;
-    
-    //    //参数去emoji表情
-    //    NSMutableDictionary *paramDict = [NSMutableDictionary dictionary];
-    //    for (NSString *key in params) {
-    //        NSString *string = params[key];
-    //        paramDict[key] = [self stringContainsEmoji:string];
-    //    }
-    
-    
     //追加参数
     [parameters addEntriesFromDictionary:params];
     
@@ -41,18 +28,11 @@
     NSString *URL = [NSString stringWithFormat:@"%@%@",UserApiUrl,url];
     
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-    [manager.requestSerializer setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-    manager.requestSerializer.HTTPShouldHandleCookies = YES;
-    manager.requestSerializer = [AFJSONRequestSerializer serializer];
-    manager.requestSerializer.timeoutInterval = 10;
-    
-    manager.responseSerializer = [MSJSONResponseSerializerWithData serializer];
-    manager.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"text/html",@"application/json",nil];
-    
+    manager.requestSerializer.timeoutInterval = 5;
     
     [manager POST:URL parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         LQLog(@"%@ %@ -----API:%@",responseObject,manager.requestSerializer.HTTPRequestHeaders,url);
-        NSDictionary *dic = [responseObject objectFromJSONString];
+        NSDictionary *dic = responseObject;
         if ([dic[@"code"] integerValue] > 0) {
             block(dic,YES);
         }
@@ -61,14 +41,7 @@
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         LQLog(@"Error: %@ ----- API:%@", task.response,url);
-        
-        NSDictionary *dic = [[error.userInfo objectForKey:@"body"] objectFromJSONString];
-        if ([dic objectForKey:@"code"]) {
-            [self checkError:dic];
-            block(dic,NO);
-        }else{
-            block(nil,NO);
-        }
+        block(nil,NO);
     }];
     [manager invalidateSessionCancelingTasks:NO];
 }
@@ -82,7 +55,6 @@
             [self requestLoginMethodWithCompletedBlock:nil noConnet:nil];
         }
     }
-    
 }
 /**
  *  自动登录
@@ -106,8 +78,6 @@
                          *  登录成功
                          */
                         //用户中心
-                        
-                        
                         User_Center.ID     = params[@"phone"];
                         User_Center.pass = params[@"code"];
                         

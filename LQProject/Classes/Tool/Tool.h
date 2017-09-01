@@ -13,13 +13,13 @@
 
 //网络请求
 + (void)requestApiWithParams:(NSDictionary *)params andRequestUrl:(NSString *)url completedBlock:(void(^)(NSDictionary *dic,bool isSuccess))block;
+
 //检测code
 + (void)checkError:(NSDictionary*)dict;
 
 //自动登录
 + (void)requestLoginMethodWithCompletedBlock:(void(^)(bool isSuccess))block noConnet:(void(^)(void))noConnet;
 + (void)checkLoginAndShowHUDWithSuccessBlock:(void(^)(void))successBlock;
-
 
 
 #pragma mark - push网页

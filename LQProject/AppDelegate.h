@@ -7,13 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "MMDrawerController.h"
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 @property (strong, nonatomic) UIWindow *window;
 
-//临时视图控制器存放
-@property(nonatomic, strong) MMDrawerController *rootViewController;
 
 @property(nonatomic, strong) UINavigationController *loginVC;
 

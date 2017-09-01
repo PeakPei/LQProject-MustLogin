@@ -71,26 +71,8 @@
 #define LQ_SCREEN_WIDTHSCALE [UIScreen mainScreen].bounds.size.width/320 //宽比例
 
 //应用中常用颜色
-#define MyColor_NavigationBar UIColorFromRGB(0x222F46)
 #define MyColor_BackgroudView UIColorFromRGB(0xF8F8F8)
 #define MyColor_HudBackground RGBA(34,47,70,0.8)
-//按钮色（蓝色）
-#define MyColor_Button_Normal [UIColor colorWithRed:58/255.0 green:151/255.0 blue:255/255.0    alpha:1.0]
-#define MyColor_Button_Disable  [UIColor colorWithRed:136.0/255.0 green:178.0/255.0 blue:250.0/255.0 alpha:1.0]
-//成功色 (绿色)
-#define MyColor_Green UIColorFromRGB(0x5FD072)
-//警示色（红色）
-#define MyColor_Red [UIColor colorWithRed:221.0/255.0 green:72.0/255.0 blue:71.0/255.0              alpha:1.0]
-//文本色（不同灰度色）
-#define MyColor_Text_333 [UIColor colorWithRed:54.0/255.0 green:54.0/255.0 blue:54.0/255.0          alpha:1.0]
-#define MyColor_Text_5a [UIColor colorWithRed:91.0/255.0 green:91.0/255.0 blue:91.0/255.0           alpha:1.0]
-#define MyColor_Text_aaa [UIColor colorWithRed:168.0/255.0 green:168.0/255.0 blue:168.0/255.0       alpha:1.0]
-#define MyColor_Text_f9 [UIColor colorWithRed:203.0/255.0 green:203.0/255.0 blue:203.0/255.0        alpha:1.0]
-#define MyColor_Text_ccc UIColorFromRGB(0xCCCCCC)
-//线条色（线条灰色）
-#define MyColor_Line_ddd  [UIColor colorWithRed:220.0/255.0 green:220.0/255.0 blue:220.0/255.0       alpha:1.0]
-#define MyColor_Line_eee  [UIColor colorWithRed:237.0/255.0 green:237.0/255.0 blue:237.0/255.0       alpha:1.0]
-
 
 //主要单例
 #define UserDefaults [NSUserDefaults standardUserDefaults]

@@ -6,8 +6,8 @@
 //  Copyright © 2016 . All rights reserved.
 //
 
-#import "LQViewController.h"
+#import "QDCommonViewController.h"
 
-@interface LoginVC : LQViewController
+@interface LoginVC : QDCommonViewController
 
 @end

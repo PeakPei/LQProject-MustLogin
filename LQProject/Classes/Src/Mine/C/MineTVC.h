@@ -7,8 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "LQTableViewController.h"
+#import "QDCommonTableViewController.h"
 
-@interface MineTVC : LQTableViewController
+@interface MineTVC : QDCommonTableViewController
 
 @end

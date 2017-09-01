@@ -33,7 +33,6 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    self.view.backgroundColor = FlatSand;
     [self initViewData];
 }
 - (void)viewWillAppear:(BOOL)animated {
@@ -92,7 +91,7 @@
     RAC(self.userNameTextField, textColor) =
     [validUsernameSignal
      map:^id(NSNumber *userNameValid){
-         return [userNameValid boolValue] ? MyColor_Button_Normal:MyColor_Text_333;
+         return [userNameValid boolValue] ? UIColorBlue:UIColorDisabled;
      }];
     
     [[[_userNameTextField rac_signalForControlEvents:UIControlEventEditingDidEnd]
@@ -103,9 +102,9 @@
 
          BOOL success =[validUsername boolValue];
          if(success){
-             _userNameTextField.textColor = MyColor_Button_Normal;
+             _userNameTextField.textColor = UIColorBlue;
          }else{
-             _userNameTextField.textColor = MyColor_Red;
+             _userNameTextField.textColor = UIColorRed;
          }
      }];
     
@@ -127,7 +126,7 @@
     RAC(self.passwordTextFiled, textColor) =
     [validPasswordSignal
      map:^id(NSNumber *passwordValid){
-         return [passwordValid boolValue] ? MyColor_Button_Normal:MyColor_Text_333;
+         return [passwordValid boolValue] ? UIColorBlue:UIColorDisabled;
      }];
     [[[_passwordTextFiled rac_signalForControlEvents:UIControlEventEditingDidEnd]
       flattenMap:^id(id x){
@@ -136,9 +135,9 @@
      subscribeNext:^(NSNumber *validUsername){
          BOOL success =[validUsername boolValue];
          if(success){
-             _passwordTextFiled.textColor = MyColor_Button_Normal;
+             _passwordTextFiled.textColor = UIColorBlue;
          }else{
-             _passwordTextFiled.textColor = MyColor_Red;
+             _passwordTextFiled.textColor = UIColorRed;
          }
      }];
     
@@ -152,9 +151,9 @@
     [signUpActiveSignal subscribeNext:^(NSNumber*signupActive){
         self.loginBtn.enabled = [signupActive boolValue];
         if ([signupActive boolValue]) {
-            self.loginBtn.backgroundColor = MyColor_Button_Normal;
+            self.loginBtn.backgroundColor = UIColorBlue;
         }else{
-            self.loginBtn.backgroundColor = MyColor_Button_Disable;
+            self.loginBtn.backgroundColor = UIColorDisabled;
         }
     }];
     
@@ -166,14 +165,14 @@
         rac_signalForControlEvents:UIControlEventTouchUpInside]
        doNext:^(id x){
            self.loginBtn.enabled =NO;
-           self.loginBtn.backgroundColor = MyColor_Button_Disable;
+           self.loginBtn.backgroundColor = UIColorDisabled;
        }]
       flattenMap:^id(id x){
           return [self signInSignal];
       }]
      subscribeNext:^(NSNumber*signedIn){
          self.loginBtn.enabled = YES;
-         self.loginBtn.backgroundColor = MyColor_Button_Normal;
+         self.loginBtn.backgroundColor = UIColorBlue;
          BOOL success =[signedIn boolValue];
          if(success){
              //appDelegate  KVO 监听了认证通过字段会自动登录，这里处理未认证通过情况显示的详情页

@@ -13,7 +13,9 @@
 //define this constant if you want to enable auto-boxing for default syntax
 #define MAS_SHORTHAND_GLOBALS
 
-#import "Masonry.h"
+#import <Masonry/Masonry.h>
+
+
 
 /**
  *  appDelegate
@@ -52,18 +54,19 @@
 #import "UserCenter.h"
 
 
-/**
- *  带placeholder的textView
- */
-#import "BRPlaceholderTextView.h"
-
 
 #import <ReactiveObjC/ReactiveObjC.h>
 
 #import <YYKit/YYKit.h>
 
-#import <ChameleonFramework/Chameleon.h>
-
 
 #import <LTNavigationBar/LTNavigationBar-umbrella.h>
+
+
+#import <QMUIKit/QMUIKit.h>
+
+#import "QDCommonUI.h"
+#import "QDUIHelper.h"
+#import "QDThemeManager.h"
+
 #endif /* AppHeader_h */

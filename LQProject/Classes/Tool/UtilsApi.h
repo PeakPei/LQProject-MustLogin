@@ -16,9 +16,6 @@
 #pragma mark - 通过Storyboard获得vc
 + (UIViewController *)initViewControllerWithClassName:(NSString*)vcClassName inStoryboard:(NSString*)storyboardName;
 
-#pragma mark - 获取到当前界面处于的viewController
-+ (UIViewController *)getCurrentVC;
-
 #pragma mark - 得到具体的设备型号
 + (NSString *)getConcreteDeviceModel;
 
