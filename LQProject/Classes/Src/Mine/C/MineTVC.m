@@ -21,9 +21,8 @@
 }
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    
-    AppDelegate *apd = App_Delegate;
-    apd.customNavVC = self.navigationController;
+
+    PageRout_Maneger.currentNaviVC = self.navigationController;
 }
 
 @end

@@ -10,6 +10,6 @@
 
 @interface GuidePageModel : NSObject
 
-@property (copy, nonatomic) NSString *pageIcon;
+@property (copy, nonatomic) NSString *pageImg;
 
 @end

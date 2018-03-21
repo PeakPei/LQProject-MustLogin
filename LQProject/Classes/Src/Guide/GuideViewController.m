@@ -11,35 +11,24 @@
 
 
 @interface GuideViewController ()<UIScrollViewDelegate>
-{
-    GuidePageModel *guideModel;
-    
-}
 
 @property(nonatomic,strong) UIScrollView *aSscroll;
 
 @property (nonatomic, strong) NSArray *imageArr;
 
-
 @end
 
 @implementation GuideViewController
 
-
-- (void)viewWillAppear:(BOOL)animated
-{
+- (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
 }
 
-
-- (void)viewWillDisappear:(BOOL)animated
-{
+- (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
-
 }
 
-- (void)viewDidLoad
-{
+- (void)viewDidLoad {
     [super viewDidLoad];
     
     NSString *plistPath = [[NSBundle mainBundle]pathForResource:@"guidePage" ofType:@"plist"];
@@ -58,17 +47,16 @@
     _aSscroll.showsHorizontalScrollIndicator = NO;
     
     
-    for (int i = 0; i< _imageArr.count ; i++)
-    {
+    for (int i = 0; i< _imageArr.count ; i++) {
         UIImageView *imageView = [[UIImageView alloc] init];
         
         // 1.设置frame
         imageView.frame = CGRectMake(i * SCREEN_WIDTH, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
         
         // 2.设置图片
-        guideModel = _imageArr[i];
+        GuidePageModel *guideModel = _imageArr[i];
         
-        NSString *imgName = [NSString stringWithFormat:@"%@", guideModel.pageIcon];
+        NSString *imgName = [NSString stringWithFormat:@"%@", guideModel.pageImg];
         imageView.image = [UIImage imageNamed:imgName];
         
         [_aSscroll addSubview:imageView];
@@ -78,7 +66,7 @@
             UIButton *tasteButton = [UIButton buttonWithType:UIButtonTypeCustom];
             UIImage *img = [UIImage imageNamed:@"立即体验"];
             
-            [tasteButton addTarget:self action:@selector(delayMethod:) forControlEvents:UIControlEventTouchUpInside];
+            [tasteButton addTarget:self action:@selector(inAPP:) forControlEvents:UIControlEventTouchUpInside];
             [tasteButton setBackgroundImage:img forState:UIControlStateNormal];
             
             tasteButton.frame = CGRectMake(0,0,img.size.width, img.size.height);
@@ -87,52 +75,25 @@
             [self.aSscroll addSubview:tasteButton];
         }
     }
-    
-    
 }
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView
-{
-    
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     CGFloat t = scrollView.contentOffset.x;
-    if (t < 0)
-    {
+    if (t < 0) {
         scrollView.contentOffset = CGPointZero;
     }
-    if (t >= (_imageArr.count -1) *SCREEN_WIDTH)
-    {
+    if (t >= (_imageArr.count -1) *SCREEN_WIDTH) {
         scrollView.contentOffset = CGPointMake((_imageArr.count -1) * SCREEN_WIDTH, 0);
-        
     }
-
 }
-
-- (void)click:(UIPageControl *)page
-{
-    NSInteger t = page.currentPage;
-    _aSscroll.contentOffset = CGPointMake(t*SCREEN_WIDTH, 0);
-}
-
-
-- (void)delayMethod:(UIButton *)button
-{
-    
+#pragma mark - 点击进入APP
+- (void)inAPP:(UIButton *)button {
     self.view.userInteractionEnabled = NO;
-    
     button.enabled = NO;
     _aSscroll.scrollEnabled = NO;
-
-    AppDelegate *d = App_Delegate;
-    
     //手机已验证，未填写认证信息
-    [UIView transitionWithView:d.window duration:1 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
-        BOOL oldState = [UIView areAnimationsEnabled];
-        [UIView setAnimationsEnabled:NO];
-        [d.window setRootViewController:d.loginVC];
-        [UIView setAnimationsEnabled:oldState];
-    } completion:NULL];
+    [PageRout_Maneger gotoLoginVC];
 }
-
-
+#pragma mark - 隐藏状态栏目
 - (BOOL)prefersStatusBarHidden {
     return YES;
 }

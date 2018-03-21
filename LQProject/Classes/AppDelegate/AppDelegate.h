@@ -1,0 +1,14 @@
+//
+//  AppDelegate.h
+//  PublicLawyerChat
+//
+//  Created by  jackli on 15/5/20.
+//  Copyright (c) 2015   jackli. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface AppDelegate : UIResponder <UIApplicationDelegate>
+@property (strong, nonatomic) UIWindow *window;
+@end
+

@@ -19,11 +19,12 @@
     });
 }
 
-- (instancetype)initWithImage:(UIImage *)image title:(NSString *)title {
-    if (self = [super init]) {
-        [self setImage:image forState:UIControlStateNormal];
-        [self setTitle:title forState:UIControlStateNormal];
-    }
+- (instancetype)qmui_initWithImage:(UIImage *)image title:(NSString *)title {
+    BeginIgnoreClangWarning(-Wunused-value)
+    [self init];
+    EndIgnoreClangWarning
+    [self setImage:image forState:UIControlStateNormal];
+    [self setTitle:title forState:UIControlStateNormal];
     return self;
 }
 

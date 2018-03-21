@@ -9,7 +9,7 @@ static UserCenter *_sharedUserCenter;
     
     dispatch_once(&token,^{
         
-        if ([UserDefaults objectForKey:@"UserCenter"]) {
+        if ([kUserDefaults objectForKey:@"UserCenter"]) {
             /**
              *  获取保存的用户信息
              */
@@ -25,10 +25,15 @@ static UserCenter *_sharedUserCenter;
 }
 
 + (BOOL)checkIsLogin {
-    
-    return (User_Center.ID.length > 0 && User_Center.pass.length  > 0) || (User_Center.openId.length > 0 && User_Center.ID.length > 0 ) ;
+    return User_Center.ID.length;
 }
-
++ (void)checkIsLoginState:(void(^)(void))success {
+    if ([self checkIsLogin]) {
+        success?success():nil;
+    } else {
+        [PageRout_Maneger gotoLoginVC];
+    }
+}
 + (void)clearUserCenter {
     /**
      *  清除保存到数据
@@ -38,15 +43,6 @@ static UserCenter *_sharedUserCenter;
     User_Center.uuid = nil;
     User_Center.gender = nil;
     User_Center.nick = nil;
-    User_Center.card = nil;
-    User_Center.birthday = nil;
-    User_Center.cents = nil;
-    User_Center.rmb = nil;
-    User_Center.email = nil;
-    User_Center.work_type = nil;
-    User_Center.company_addr = nil;
-    User_Center.home_addr = nil;
-    User_Center.sec_question = nil;
     User_Center.openId = nil;
     User_Center.headurl = nil;
     User_Center.unionLoginType = nil;
@@ -58,53 +54,18 @@ static UserCenter *_sharedUserCenter;
     
     if (dict[@"ID"]) {
         User_Center.ID = dict[@"ID"];
-        
     }
     if (dict[@"pass"]) {
         User_Center.pass = dict[@"pass"];
-        
     }
     if (dict[@"uuid"]) {
         User_Center.uuid = dict[@"uuid"];
-        
     }
     if (dict[@"gender"]) {
         User_Center.gender = dict[@"gender"];
-        
     }
     if (dict[@"nick"]) {
         User_Center.nick = dict[@"nick"];
-        
-    }
-    if (dict[@"card"]) {
-        User_Center.card = dict[@"card"];
-        
-    }
-    if (dict[@"cents"]) {
-        User_Center.cents = dict[@"cents"];
-        
-    }
-    if (dict[@"rmb"]) {
-        User_Center.rmb = dict[@"rmb"];
-        
-    }
-    if (dict[@"birthday"]) {
-        User_Center.birthday = dict[@"birthday"];
-    }
-    if (dict[@"email"]) {
-        User_Center.email = dict[@"email"];
-    }
-    if (dict[@"work_type"]) {
-        User_Center.work_type = dict[@"work_type"];
-    }
-    if (dict[@"company_addr"]) {
-        User_Center.company_addr = dict[@"company_addr"];
-    }
-    if (dict[@"home_addr"]) {
-        User_Center.home_addr = dict[@"home_addr"];
-    }
-    if (dict[@"sec_question"]) {
-        User_Center.sec_question = dict[@"sec_question"];
     }
     if (dict[@"openid"]) {
         User_Center.openId = dict[@"openid"];
@@ -132,15 +93,6 @@ static UserCenter *_sharedUserCenter;
     [aCoder encodeObject:self.pass forKey:@"pass"];
     [aCoder encodeObject:self.gender forKey:@"gender"];
     [aCoder encodeObject:self.nick forKey:@"nick"];
-    [aCoder encodeObject:self.card forKey:@"card"];
-    [aCoder encodeObject:self.cents forKey:@"cents"];
-    [aCoder encodeObject:self.rmb forKey:@"rmb"];
-    [aCoder encodeObject:self.birthday forKey:@"birthday"];
-    [aCoder encodeObject:self.email forKey:@"email"];
-    [aCoder encodeObject:self.work_type forKey:@"work_type"];
-    [aCoder encodeObject:self.company_addr forKey:@"company_addr"];
-    [aCoder encodeObject:self.home_addr forKey:@"home_addr"];
-    [aCoder encodeObject:self.sec_question forKey:@"sec_question"];
     [aCoder encodeObject:self.openId forKey:@"openId"];
     [aCoder encodeObject:self.unionLoginType forKey:@"unionLoginType"];
     [aCoder encodeObject:self.headurl forKey:@"headurl"];
@@ -156,15 +108,6 @@ static UserCenter *_sharedUserCenter;
         self.uuid           = [aDecoder decodeObjectForKey:@"uuid"];
         self.gender         = [aDecoder decodeObjectForKey:@"gender"];
         self.nick           = [aDecoder decodeObjectForKey:@"nick"];
-        self.card           = [aDecoder decodeObjectForKey:@"card"];
-        self.cents          = [aDecoder decodeObjectForKey:@"cents"];
-        self.rmb            = [aDecoder decodeObjectForKey:@"rmb"];
-        self.birthday       = [aDecoder decodeObjectForKey:@"birthday"];
-        self.email          = [aDecoder decodeObjectForKey:@"email"];
-        self.work_type      = [aDecoder decodeObjectForKey:@"work_type"];
-        self.company_addr   = [aDecoder decodeObjectForKey:@"company_addr"];
-        self.home_addr      = [aDecoder decodeObjectForKey:@"home_addr"];
-        self.sec_question   = [aDecoder decodeObjectForKey:@"sec_question"];
         self.openId         = [aDecoder decodeObjectForKey:@"openId"];
         self.unionLoginType = [aDecoder decodeObjectForKey:@"unionLoginType"];
         self.headurl        = [aDecoder decodeObjectForKey:@"headurl"];

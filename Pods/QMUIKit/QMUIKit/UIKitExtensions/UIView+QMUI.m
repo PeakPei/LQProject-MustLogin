@@ -26,8 +26,45 @@
 
 @implementation UIView (QMUI)
 
++ (void)load {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        
+        if (@available(iOS 11, *)) {
+            ReplaceMethod([self class], @selector(safeAreaInsetsDidChange), @selector(qmui_safeAreaInsetsDidChange));
+        }
+        
+        // 检查调用这系列方法的两个 view 是否存在共同的父 view，不存在则可能导致转换结果错误
+        ReplaceMethod([self class], @selector(convertPoint:toView:), @selector(qmui_convertPoint:toView:));
+        ReplaceMethod([self class], @selector(convertPoint:fromView:), @selector(qmui_convertPoint:fromView:));
+        ReplaceMethod([self class], @selector(convertRect:toView:), @selector(qmui_convertRect:toView:));
+        ReplaceMethod([self class], @selector(convertRect:fromView:), @selector(qmui_convertRect:fromView:));
+    });
+}
+
 - (instancetype)qmui_initWithSize:(CGSize)size {
     return [self initWithFrame:CGRectMakeWithSize(size)];
+}
+
+- (UIEdgeInsets)qmui_safeAreaInsets {
+    if (@available(iOS 11.0, *)) {
+        return self.safeAreaInsets;
+    }
+    return UIEdgeInsetsZero;
+}
+
+static char kAssociatedObjectKey_safeAreaInsetsBeforeChange;
+- (void)setQmui_safeAreaInsetsBeforeChange:(UIEdgeInsets)qmui_safeAreaInsetsBeforeChange {
+    objc_setAssociatedObject(self, &kAssociatedObjectKey_safeAreaInsetsBeforeChange, [NSValue valueWithUIEdgeInsets:qmui_safeAreaInsetsBeforeChange], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (UIEdgeInsets)qmui_safeAreaInsetsBeforeChange {
+    return [((NSValue *)objc_getAssociatedObject(self, &kAssociatedObjectKey_safeAreaInsetsBeforeChange)) UIEdgeInsetsValue];
+}
+
+- (void)qmui_safeAreaInsetsDidChange {
+    [self qmui_safeAreaInsetsDidChange];
+    self.qmui_safeAreaInsetsBeforeChange = self.qmui_safeAreaInsets;
 }
 
 - (void)qmui_removeAllSubviews {
@@ -70,6 +107,58 @@
     }
 }
 
+- (BOOL)hasSharedAncestorViewWithView:(UIView *)view {
+    UIView *sharedAncestorView = self;
+    if (!view) {
+        return YES;
+    }
+    while (sharedAncestorView && ![view isDescendantOfView:sharedAncestorView]) {
+        sharedAncestorView = sharedAncestorView.superview;
+    }
+    return !!sharedAncestorView;
+}
+
+- (BOOL)isUIKitPrivateView {
+    // 系统有些东西本身也存在不合理，但我们不关心这种，所以过滤掉
+    if ([self isKindOfClass:[UIWindow class]]) return YES;
+    
+    __block BOOL isPrivate = NO;
+    NSString *classString = NSStringFromClass(self.class);
+    [@[@"LayoutContainer", @"NavigationItemButton", @"NavigationItemView", @"SelectionGrabber", @"InputViewContent"] enumerateObjectsUsingBlock:^(NSString * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if (([classString hasPrefix:@"UI"] || [classString hasPrefix:@"_UI"]) && [classString containsString:obj]) {
+            isPrivate = YES;
+            *stop = YES;
+        }
+    }];
+    return isPrivate;
+}
+
+- (void)alertConvertValueWithView:(UIView *)view {
+    if (IS_DEBUG && ![self isUIKitPrivateView] && ![self hasSharedAncestorViewWithView:view]) {
+        NSLog(@"进行坐标系转换运算的 %@ 和 %@ 不存在共同的父 view，可能导致运算结果不准确（特别是在横屏状态下）", self, view);
+    }
+}
+
+- (CGPoint)qmui_convertPoint:(CGPoint)point toView:(nullable UIView *)view {
+    [self alertConvertValueWithView:view];
+    return [self qmui_convertPoint:point toView:view];
+}
+
+- (CGPoint)qmui_convertPoint:(CGPoint)point fromView:(nullable UIView *)view {
+    [self alertConvertValueWithView:view];
+    return [self qmui_convertPoint:point fromView:view];
+}
+
+- (CGRect)qmui_convertRect:(CGRect)rect toView:(nullable UIView *)view {
+    [self alertConvertValueWithView:view];
+    return [self qmui_convertRect:rect toView:view];
+}
+
+- (CGRect)qmui_convertRect:(CGRect)rect fromView:(nullable UIView *)view {
+    [self alertConvertValueWithView:view];
+    return [self qmui_convertRect:rect fromView:view];
+}
+
 @end
 
 
@@ -98,6 +187,7 @@
                                                [UIScrollView class],
                                                [UIDatePicker class],
                                                [UIPickerView class],
+                                               [UIVisualEffectView class],
                                                [UIWebView class],
                                                [UIWindow class],
                                                [UINavigationBar class],
@@ -108,11 +198,8 @@
                                                [UIView class],
                                                nil];
     
-    if (NSClassFromString(@"UIStackView")) {
-        [viewSuperclasses addObject:[UIStackView class]];
-    }
-    if (NSClassFromString(@"UIVisualEffectView")) {
-        [viewSuperclasses addObject:[UIVisualEffectView class]];
+    if (@available(iOS 9.0, *)) {
+        [viewSuperclasses insertObject:[UIStackView class] atIndex:0];
     }
     
     for (NSInteger i = 0, l = viewSuperclasses.count; i < l; i++) {
@@ -179,9 +266,11 @@ static char kAssociatedObjectKey_hasDebugColor;
 
 - (void)renderColorWithSubviews:(NSArray *)subviews {
     for (UIView *view in subviews) {
-        if ([view isKindOfClass:[UIStackView class]]) {
-            UIStackView *stackView = (UIStackView *)view;
-            [self renderColorWithSubviews:stackView.arrangedSubviews];
+        if (@available(iOS 9.0, *)) {
+            if ([view isKindOfClass:[UIStackView class]]) {
+                UIStackView *stackView = (UIStackView *)view;
+                [self renderColorWithSubviews:stackView.arrangedSubviews];
+            }
         }
         view.qmui_hasDebugColor = YES;
         view.qmui_shouldShowDebugColor = self.qmui_shouldShowDebugColor;
@@ -213,8 +302,7 @@ static char kAssociatedObjectKey_hasDebugColor;
 }
 
 - (void)QMUISymbolicUIViewBecomeFirstResponderWithoutKeyWindow {
-    NSLog(@"尝试让一个处于非 keyWindow 上的 %@ becomeFirstResponder，请添加 '%@' 的 Symbolic Breakpoint 以捕捉此类错误", NSStringFromClass(self.class), NSStringFromSelector(_cmd));
-    NSLog(@"%@", [NSThread callStackSymbols]);
+    NSLog(@"尝试让一个处于非 keyWindow 上的 %@ becomeFirstResponder，可能导致界面显示异常，请添加 '%@' 的 Symbolic Breakpoint 以捕捉此类信息\n%@", NSStringFromClass(self.class), NSStringFromSelector(_cmd), [NSThread callStackSymbols]);
 }
 
 @end
@@ -355,7 +443,7 @@ static char kAssociatedObjectKey_dashPattern;
 }
 
 - (NSArray *)qmui_dashPattern {
-    return (NSArray *)objc_getAssociatedObject(self, &kAssociatedObjectKey_dashPattern);
+    return (NSArray<NSNumber *> *)objc_getAssociatedObject(self, &kAssociatedObjectKey_dashPattern);
 }
 
 static char kAssociatedObjectKey_borderLayer;
