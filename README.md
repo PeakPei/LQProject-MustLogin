@@ -1,5 +1,7 @@
 ## V3.0集成QMUI, 项目框架设计，优选三方库Pod集成，网络请求简单封装（自动登录处理），常用宏，工具，swift混编兼容等等
 
+LQProject-MustLogin - https://github.com/XZTLLQ/LQProject-MustLogin (强制登录型)
+LQProject-NOLogin - https://github.com/XZTLLQ/LQProject-NOLogin (可选登录型)
 #### 欢迎技术交流！674297026@qq.com
 
 # LQ系列--UI
