@@ -163,49 +163,47 @@
         
         NSMutableDictionary *params = [NSMutableDictionary dictionary];
         params[@"phone"] = _userNameTextField.text;
-        params[@"code"] = _passwordTextFiled.text;
+        params[@"pass"] = _passwordTextFiled.text;
         
         
         [SVProgressHUD show];
         [RequestTool requestApiWithParams:params andRequestUrl:@"checkLoginSMSCode" completedBlock:^(ApiResponseModel *apiResponseModel, BOOL isSuccess) {
-                        
-//            if(dic)
-//            {
-//                switch ([dic[@"code"] intValue]) {
-//                    case 1:
-//                    {
-//                        //保存用户名密码
-//                        User_Center.ID = params[@"phone"];
-//                        User_Center.pass = params[@"code"];
-//                        //用户中心
-//                        [UserCenter resetUserCenterWithDictionary:dic[@"data"]];
-//                        [subscriber sendNext:@(YES)];
-//                        [subscriber sendCompleted];
-//                    }
-//                        break;
-//                    default:
-//                        [SVProgressHUD dismiss];
-//                        [SVProgressHUD showErrorWithStatus:@"登录失败"];
-//                        [subscriber sendNext:@(NO)];
-//                        [subscriber sendCompleted];
-//                        break;
-//                }
-//            }else{
-//                [SVProgressHUD dismiss];
-//                [SVProgressHUD showErrorWithStatus:@"网络异常"];
-//                [subscriber sendNext:@(NO)];
-//                [subscriber sendCompleted];
-//            }
+            
+            //            if(apiResponseModel) {
+            //                switch (apiResponseModel.status.code) {
+            //                    case 1:
+            //                    {
+            //                        //保存用户名密码
+            //                        User_Center.ID = params[@"phone"];
+            //                        User_Center.pass = params[@"pass"];
+            //                        //用户中心
+            //                        [UserCenter resetUserCenterWithDictionary:apiResponseModel.data];
+            //                        [subscriber sendNext:@(YES)];
+            //                        [subscriber sendCompleted];
+            //                    }
+            //                        break;
+            //                    default:
+            //                        [SVProgressHUD dismiss];
+            //                        [SVProgressHUD showErrorWithStatus:@"登录失败"];
+            //                        [subscriber sendNext:@(NO)];
+            //                        [subscriber sendCompleted];
+            //                        break;
+            //                }
+            //            }else{
+            //                [SVProgressHUD dismiss];
+            //                [SVProgressHUD showErrorWithStatus:@"网络异常"];
+            //                [subscriber sendNext:@(NO)];
+            //                [subscriber sendCompleted];
+            //            }
             
             //调试设置:(需删除这段代码)
             [SVProgressHUD dismiss];
             User_Center.ID = params[@"phone"];
-            User_Center.pass = params[@"code"];
+            User_Center.pass = params[@"pass"];
             [subscriber sendNext:@(YES)];
             [subscriber sendCompleted];
             //调试设置:(需删除这段代码)
         }];
-        
         return nil;
     }];
 }
