@@ -28,10 +28,11 @@
 @property (nonatomic , strong) NSNumber *unionLoginType;
 
 @property (nonatomic) BOOL isLogining;  //防止多次请求登录
-//获得单列
+//获得单例
 + (instancetype)sharedInstance;
 //是否登录
 + (BOOL)checkIsLogin;
++ (void)checkIsLoginState:(void(^)(void))success;
 //清除用户中心数据
 + (void)clearUserCenter;
 //设置用户中心数据
