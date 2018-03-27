@@ -62,9 +62,9 @@ static NSMutableArray <RequestObject *> *timeoutRequestMArr;
     
     [manager POST:URL parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         ApiResponseModel *model = [ApiResponseModel modelWithJSON:responseObject];
-        if (model > 0) {
+        if (model.status.code > 0) {
             block ? block(responseObject, YES): nil;
-        } else if (model == -1006) {
+        } else if (model.status.code == -1006) {
             // CAUTION:记录保存-1006请求
             timeoutRequestMArr = timeoutRequestMArr? : [NSMutableArray array];
             RequestObject *timeoutRequest = [[RequestObject alloc] initWithRequestURL:url params:params completedBlock:block];
