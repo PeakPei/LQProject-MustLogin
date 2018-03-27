@@ -61,9 +61,10 @@ static NSMutableArray <RequestObject *> *timeoutRequestMArr;
     manager.requestSerializer.timeoutInterval = 5;
     
     [manager POST:URL parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        if ([responseObject[@"code"] integerValue] > 0) {
+        ApiResponseModel *model = [ApiResponseModel modelWithJSON:responseObject];
+        if (model > 0) {
             block ? block(responseObject, YES): nil;
-        } else if ([responseObject[@"code"] integerValue] == -1006) {
+        } else if (model == -1006) {
             // CAUTION:记录保存-1006请求
             timeoutRequestMArr = timeoutRequestMArr? : [NSMutableArray array];
             RequestObject *timeoutRequest = [[RequestObject alloc] initWithRequestURL:url params:params completedBlock:block];
@@ -76,10 +77,10 @@ static NSMutableArray <RequestObject *> *timeoutRequestMArr;
             } failure:^{
                 [timeoutRequestMArr removeAllObjects];
                 // 自动登录失败执行block(比如提示“请登录”,登录成功不提示)
-                block ? block(responseObject, NO): nil;
+                block ? block(model, NO): nil;
             }];
         } else {
-            block ? block(responseObject, NO): nil;
+            block ? block(model, NO): nil;
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         LQLog(@"Error: %@ ----- API:%@", task.response,url);
