@@ -4,7 +4,7 @@
 #### LQProject-NOLogin - https://github.com/XZTLLQ/LQProject-NOLogin (可选登录型)
 #### 欢迎技术交流！674297026@qq.com
 
-## Next -> 4.0：将使用 MVVM + RAC 模式（正在构建）
+## Next -> 4.0：将使用 MVVM + RAC 模式（正在构建ing）
 
 # LQ系列--UI
 #### LQPhotoPickerDemo - https://github.com/XZTLLQ/LQClass （可节约项目大量细节调控时间，体验好！）
